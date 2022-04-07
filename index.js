@@ -22,12 +22,12 @@ module.exports = (options, context) => {
     /**
      * Reads in the snaphotted sidebar configs and rewrites them to be versioned
      */
-    ready () {
+    ready() {
       if (versions.length === 0) {
         return
       }
 
-      updateSidebarConfig(context.themeConfig, 'next')
+      updateSidebarConfig(context.themeConfig, 'latest')
 
       const currentVersion = versions[0]
       context.themeConfig.versionedSidebar = {}
@@ -48,7 +48,7 @@ module.exports = (options, context) => {
     /**
      * Extends the cli with new commands to manage versions
      */
-    extendCli (cli) {
+    extendCli(cli) {
       cli
         .command('version <targetDir> <version>', 'Draft a new version')
         .allowUnknownOptions()
@@ -87,7 +87,7 @@ module.exports = (options, context) => {
     /**
      * Adds additional pages from versioned docs as well as unversioned extra pages.
      */
-    async additionalPages () {
+    async additionalPages() {
       const patterns = ['**/*.md', '**/*.vue', '!.vuepress', '!node_modules']
 
       const addPages = (pageFiles, basePath) => {
@@ -122,7 +122,7 @@ module.exports = (options, context) => {
      *
      * @param {Object} page VuePress page object
      */
-    extendPageData (page) {
+    extendPageData(page) {
       if (!page._filePath) {
         return
       }
@@ -141,7 +141,7 @@ module.exports = (options, context) => {
     /**
      * Extends and updates a page with additional information for versioning support.
      */
-    extendPageData (page) {
+    extendPageData(page) {
       const currentVersion = versions[0]
       if (!page._filePath) {
         return
@@ -152,11 +152,7 @@ module.exports = (options, context) => {
         page.version = version
         page.originalRegularPath = page.regularPath
         const pathWithoutLeadingVersion = page.path.replace(new RegExp(`^/${version}`), '')
-        if (version === currentVersion) {
-          page.path = page.regularPath = pathWithoutLeadingVersion
-        } else {
-          page.path = page.regularPath = generateVersionedPath(pathWithoutLeadingVersion, page.version, page._localePath)
-        }
+        page.path = page.regularPath = generateVersionedPath(pathWithoutLeadingVersion, page.version, page._localePath)
         page.originalRelativePath = page.relativePath
         page.relativePath = path.relative(versionedSourceDir, page._filePath).replace(/\\/g, '/')
       } else if (page._filePath.startsWith(pagesSourceDir)) {
@@ -164,9 +160,10 @@ module.exports = (options, context) => {
         page.originalRelativePath = page.relativePath
         page.relativePath = path.relative(pagesSourceDir, page._filePath).replace(/\\/g, '/')
       } else if (page._filePath.startsWith(context.sourceDir)) {
-        page.version = 'next'
+        page.version = 'latest'
         page.originalRegularPath = page.regularPath
-        page.path = page.regularPath = generateVersionedPath(page.path, page.version, page._localePath)
+        // don't move behind the /next path - render as is
+        page.path = page.regularPath
       }
     },
 
@@ -194,7 +191,7 @@ module.exports = (options, context) => {
      *
      * @param {*} config
      */
-    chainMarkdown (config) {
+    chainMarkdown(config) {
       config.plugins.delete('convert-router-link')
       const { externalLinks } = context.siteConfig.markdown || {}
       config
