@@ -27,8 +27,6 @@ module.exports = (options, context) => {
         return
       }
 
-      updateSidebarConfig(context.themeConfig, 'latest')
-
       const currentVersion = versions[0]
       context.themeConfig.versionedSidebar = {}
       for (const version of versions) {
