@@ -20,7 +20,8 @@ module.exports = (options, context) => {
     name: pluginName,
 
     /**
-     * Reads in the snaphotted sidebar configs and rewrites them to be versioned
+     * Reads in the snaphotted sidebar configs and rewrites them 
+     * to be versioned
      */
     ready() {
       if (versions.length === 0) {
